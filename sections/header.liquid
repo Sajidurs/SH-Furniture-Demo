@@ -16,6 +16,17 @@
   <link rel="stylesheet" href="{{ 'component-mega-menu.css' | asset_url }}" media="print" onload="this.media='all'">
 {%- endif -%}
 
+{%- comment -%} SH Furniture header styles (search bar, help link, mega menu promos) {%- endcomment -%}
+{{ 'sh-header.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  # The desktop search bar needs the two-row "Top left" layout and an inline menu.
+  assign sh_search_bar = false
+  if section.settings.sh_show_search_bar and section.settings.logo_position == 'top-left' and section.settings.menu_type_desktop != 'drawer'
+    assign sh_search_bar = true
+  endif
+-%}
+
 <style>
   header-drawer {
     justify-self: start;
@@ -164,7 +175,7 @@
       assign language_selector = true
     endif
   -%}
-  <header class="header header--{{ section.settings.logo_position }} header--mobile-{{ section.settings.mobile_logo_position }} page-width{% if section.settings.menu_type_desktop == 'drawer' %} drawer-menu{% endif %}{% if section.settings.menu != blank %} header--has-menu{% endif %}{% if has_app_block %} header--has-app{% endif %}{% if social_links %} header--has-social{% endif %}{% if shop.customer_accounts_enabled %} header--has-account{% endif %}{% if country_selector or language_selector %} header--has-localizations{% endif %}">
+  <header class="header header--{{ section.settings.logo_position }} header--mobile-{{ section.settings.mobile_logo_position }} page-width{% if section.settings.menu_type_desktop == 'drawer' %} drawer-menu{% endif %}{% if section.settings.menu != blank %} header--has-menu{% endif %}{% if has_app_block %} header--has-app{% endif %}{% if social_links %} header--has-social{% endif %}{% if shop.customer_accounts_enabled %} header--has-account{% endif %}{% if country_selector or language_selector %} header--has-localizations{% endif %}{% if sh_search_bar %} header--sh-search-bar{% endif %}">
     {%- liquid
       assign render_search_left = false
       if section.settings.logo_position == 'top-center' or section.settings.menu == blank or shop.customer_accounts_enabled
@@ -211,6 +222,10 @@
       {%- if request.page_type == 'index' -%}
         </h1>
       {%- endif -%}
+    {%- endif -%}
+
+    {%- if sh_search_bar -%}
+      {%- render 'sh-header-search-bar', placeholder: section.settings.sh_search_placeholder -%}
     {%- endif -%}
 
     {%- liquid
@@ -316,6 +331,17 @@
         {%- endif -%}
       </a>
     </div>
+
+    {%- comment -%} SH Furniture: help / contact link at the end of the menu row (desktop only) {%- endcomment -%}
+    {%- if sh_search_bar and section.settings.sh_help_text != blank -%}
+      {%- if section.settings.sh_help_link != blank -%}
+        <a href="{{ section.settings.sh_help_link }}" class="sh-header__help link link--text focus-inset">
+          {{- section.settings.sh_help_text | escape -}}
+        </a>
+      {%- else -%}
+        <span class="sh-header__help">{{ section.settings.sh_help_text | escape }}</span>
+      {%- endif -%}
+    {%- endif -%}
   </header>
 </{{ header_tag }}>
 
@@ -456,6 +482,16 @@
   );
 
   customElements.define('sticky-header', StickyHeader);
+
+  // SH Furniture: in the theme editor, open the matching mega menu when a promo block is selected.
+  document.addEventListener('shopify:block:select', (event) => {
+    const menu = event.target.closest('details.mega-menu');
+    if (menu) menu.open = true;
+  });
+  document.addEventListener('shopify:block:deselect', (event) => {
+    const menu = event.target.closest('details.mega-menu');
+    if (menu) menu.open = false;
+  });
 {% endjavascript %}
 
 <script type="application/ld+json">
@@ -502,7 +538,7 @@
 {
   "name": "t:sections.header.name",
   "class": "section-header",
-  "max_blocks": 3,
+  "max_blocks": 12,
   "settings": [
     {
       "type": "select",
@@ -676,11 +712,95 @@
       "unit": "px",
       "label": "t:sections.all.padding.padding_bottom",
       "default": 20
+    },
+    {
+      "type": "header",
+      "content": "SH Furniture: search bar"
+    },
+    {
+      "type": "checkbox",
+      "id": "sh_show_search_bar",
+      "label": "Show search bar on desktop",
+      "info": "Needs logo position \"Top left\" and a dropdown or mega menu. Mobile keeps the search icon.",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "sh_search_placeholder",
+      "label": "Search placeholder",
+      "default": "Search sofas, beds, tables..."
+    },
+    {
+      "type": "header",
+      "content": "SH Furniture: help link"
+    },
+    {
+      "type": "text",
+      "id": "sh_help_text",
+      "label": "Help text",
+      "info": "Shown at the right of the menu row on desktop. Leave empty to hide.",
+      "default": "Need help? Contact us"
+    },
+    {
+      "type": "url",
+      "id": "sh_help_link",
+      "label": "Help link"
     }
   ],
   "blocks": [
     {
       "type": "@app"
+    },
+    {
+      "type": "mega_promo",
+      "name": "Mega menu promo",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Shows a picture card inside a mega menu dropdown. Needs menu type \"Mega menu\"."
+        },
+        {
+          "type": "text",
+          "id": "menu_item",
+          "label": "Menu item",
+          "info": "Type the exact title of a top-level menu link that has sub-links, e.g. Living Room.",
+          "default": "Living Room"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "New arrivals"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "Fresh designs for every room"
+        },
+        {
+          "type": "text",
+          "id": "link_label",
+          "label": "Link label",
+          "default": "Shop now"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme",
+          "label": "t:sections.all.colors.label",
+          "default": "scheme-2"
+        }
+      ]
     }
   ]
 }

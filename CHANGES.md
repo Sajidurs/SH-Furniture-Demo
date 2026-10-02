@@ -54,10 +54,22 @@
 | 2026-10-02 | Buttons: uppercase labels, 0.08em letter spacing, 500 weight | Done in `assets/sh-base.css` and controlled by the new "SH Furniture brand" settings group. |
 | 2026-10-02 | Page width 1400px | Bigger room and product photos on desktop. |
 | 2026-10-02 | Brand-only CSS goes in `assets/sh-base.css`, loaded after `base.css` | Keeps our changes separate from Dawn files, so Dawn updates are easier to merge. |
+| 2026-10-02 | Naming: our new files, classes and settings start with `sh-` / `sh_` | Easy to tell our code apart from Dawn's. |
+| 2026-10-02 | Header: extend Dawn's header (do not rewrite it). Desktop has logo + search bar + icons on row 1 and mega menu + help link on row 2. Mobile keeps Dawn's drawer, logo and icons. | Furniture shoppers search a lot, so an always-visible bar helps. Reusing Dawn keeps the drawer, sticky header, accessibility and predictive search working. |
+| 2026-10-02 | Mega menu promo cards are header blocks matched by menu item title | Fully editable in the theme editor with no code. Shopify menus cannot hold images, so blocks fill that gap. |
 
 ---
 
 ## 3. Change Log (newest first)
+
+### 2026-10-02 – Header: search bar, help link, mega menu promos
+- Desktop search bar with live (predictive) results. It reuses Dawn's `<predictive-search>`, so no new JS. The search icon is hidden on desktop when the bar shows.
+- Help/contact text and link at the right of the menu row (desktop).
+- New "Mega menu promo" block (image, heading, text, link label, link, color scheme). It shows inside the mega menu of the top-level link whose title matches "Menu item". In the theme editor, selecting the block opens that menu.
+- Header group set to: logo "Top left", menu type "Mega menu", announcement bar in Deep Forest (scheme 4), one sample promo for "Living Room".
+- `max_blocks` raised from 3 to 12 (app blocks + promos).
+- Checked in preview (http://127.0.0.1:9292): page renders with no Liquid errors, header class `header--sh-search-bar` is present, and Jost/DM Sans load. Theme check: 0 errors (same 9 Dawn warnings).
+- **Files changed:** `sections/header.liquid`, `sections/header-group.json`, `snippets/header-mega-menu.liquid`, `snippets/sh-header-search-bar.liquid` (new), `snippets/sh-mega-menu-promo.liquid` (new), `assets/sh-header.css` (new), `CHANGES.md`
 
 ### 2026-10-02 – Global style setup applied
 - Set brand fonts, the 5 color schemes, corner radius, page width (1400), and badge schemes.
@@ -86,22 +98,23 @@
 - Project memory files created.
 - Own GitHub repo connected (`origin`).
 - Global style setup (fonts, colors, buttons, radius) applied.
+- Header: search bar, help link, mega menu with promo cards.
 
 **In progress**
-- Nothing. The next task is the header.
+- Waiting for the owner to build the main menu in Shopify admin (nested links) and upload a logo, so the mega menu can be checked visually.
 
 **Not started**
-- Header and mega menu, homepage sections, collection, product + EMI, cart drawer, other pages, app extension.
+- Homepage sections, collection, product + EMI, cart drawer, other pages, app extension.
 
 ---
 
 ## 5. Next Plan
 
-1. **Check the styles in preview** (`shopify theme dev`): fonts load, colors look right, buttons are uppercase.
-2. **Header.** Logo, search, cart icon and mega menu, styled for the brand (extend Dawn's `sections/header.liquid`). Also create a test main menu in Shopify admin with nested links.
-3. **Homepage hero slider** section with editable slides.
-4. **Shop by room / category grid** section.
-5. **Featured products + offer banner** sections, then the footer (Deep Forest scheme 4).
+1. **Owner:** build the main menu in Admin → Content → Menus (e.g. Living Room > Sofas, Coffee Tables; Bedroom > Beds, Wardrobes; Dining; Office; Sale), upload a logo, and check the header on desktop and mobile.
+2. **Homepage hero slider** section with editable slides (image, mobile image, heading, text, buttons).
+3. **Shop by room / category grid** section.
+4. **Featured products + offer banner** sections.
+5. **Footer** (Deep Forest scheme 4: menus, newsletter, contact, social, payment icons).
 
 ---
 
@@ -110,6 +123,10 @@
 - Git: push to `origin` (our repo). To get Dawn updates later, run `git fetch upstream` and then merge carefully.
 - `config/settings_data.json` uses `"current": "Dawn"` (a preset). Brand values live in `presets.Dawn`. Once the theme is customized in the editor, Shopify may rewrite this file. Always pull the latest from the store (`shopify theme pull --only config/settings_data.json`) before editing it by hand.
 - Sage `#7A8B74` is not in any color scheme yet. It is kept for accents (icons, badges) in later sections.
+- The store's main menu is currently Home / Catalog / Contact with no sub-links, so mega menu dropdowns will not appear until nested links are added.
+- The desktop search bar only shows when the logo position is "Top left" and the menu type is not "Drawer" (see `sh_search_bar` in `header.liquid`).
+- Mega promo matching uses the menu link **title** (not case-sensitive). If a menu item is renamed, update the block's "Menu item" too.
+- The owner usually keeps `shopify theme dev` running on port 9292, so local saves sync to the preview automatically.
 - `cart_type` is still `notification`. It will switch to `drawer` in the cart drawer task.
 - `.theme-check.yml` turns off the `MatchingTranslations` and `TemplateLength` checks (Dawn default).
 - Theme check has 9 warnings that come from stock Dawn. Ignore them unless we edit those files.

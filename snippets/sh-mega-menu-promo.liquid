@@ -1,0 +1,56 @@
+{% comment %}
+  SH Furniture: promo card shown inside a mega menu dropdown.
+  Settings come from a "Mega menu promo" block in the header section.
+
+  Accepts:
+  - block: {Object} The mega_promo block
+
+  Usage:
+  {% render 'sh-mega-menu-promo', block: block %}
+{% endcomment %}
+
+{%- liquid
+  assign promo = block.settings
+  if promo.link != blank
+    assign tag = 'a'
+  else
+    assign tag = 'div'
+  endif
+-%}
+
+<{{ tag }}
+  {% if promo.link != blank %}
+    href="{{ promo.link }}"
+  {% endif %}
+  class="sh-mega-promo color-{{ promo.color_scheme }} gradient"
+  {{ block.shopify_attributes }}
+>
+  <div class="sh-mega-promo__media">
+    {%- if promo.image != blank -%}
+      {%- comment -%} Images only load when the menu opens (closed <details> content is not rendered). {%- endcomment -%}
+      {{
+        promo.image
+        | image_url: width: 640
+        | image_tag:
+          loading: 'lazy',
+          widths: '280, 420, 560, 640',
+          sizes: '(min-width: 990px) 280px, 1px',
+          alt: promo.image.alt | default: promo.heading
+      }}
+    {%- else -%}
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+    {%- endif -%}
+  </div>
+
+  <div class="sh-mega-promo__content">
+    {%- if promo.heading != blank -%}
+      <p class="sh-mega-promo__heading h4">{{ promo.heading | escape }}</p>
+    {%- endif -%}
+    {%- if promo.text != blank -%}
+      <p class="sh-mega-promo__text">{{ promo.text | escape }}</p>
+    {%- endif -%}
+    {%- if promo.link_label != blank -%}
+      <span class="sh-mega-promo__cta link">{{ promo.link_label | escape }} &rarr;</span>
+    {%- endif -%}
+  </div>
+</{{ tag }}>
