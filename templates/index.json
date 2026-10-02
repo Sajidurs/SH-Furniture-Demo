@@ -72,6 +72,83 @@
         "margin_bottom": 0
       }
     },
+    "room_grid": {
+      "type": "sh-room-grid",
+      "blocks": {
+        "room_1": {
+          "type": "room",
+          "settings": {
+            "collection": "",
+            "title": "Living Room",
+            "link": ""
+          }
+        },
+        "room_2": {
+          "type": "room",
+          "settings": {
+            "collection": "",
+            "title": "Bedroom",
+            "link": ""
+          }
+        },
+        "room_3": {
+          "type": "room",
+          "settings": {
+            "collection": "",
+            "title": "Dining",
+            "link": ""
+          }
+        },
+        "room_4": {
+          "type": "room",
+          "settings": {
+            "collection": "",
+            "title": "Home Office",
+            "link": ""
+          }
+        },
+        "room_5": {
+          "type": "room",
+          "settings": {
+            "collection": "",
+            "title": "Outdoor",
+            "link": ""
+          }
+        },
+        "room_6": {
+          "type": "room",
+          "settings": {
+            "collection": "",
+            "title": "Storage",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "room_1",
+        "room_2",
+        "room_3",
+        "room_4",
+        "room_5",
+        "room_6"
+      ],
+      "settings": {
+        "heading": "Shop by room",
+        "heading_size": "h1",
+        "text": "<p>Find the right pieces for every space in your home.</p>",
+        "header_alignment": "left",
+        "view_all_label": "View all",
+        "view_all_link": "shopify://collections/all",
+        "card_style": "overlay",
+        "image_ratio": "square",
+        "show_count": true,
+        "columns_desktop": 3,
+        "mobile_layout": "grid",
+        "color_scheme": "scheme-1",
+        "padding_top": 56,
+        "padding_bottom": 56
+      }
+    },
     "image_banner": {
       "type": "image-banner",
       "blocks": {
@@ -143,6 +220,7 @@
   },
   "order": [
     "hero_slider",
+    "room_grid",
     "image_banner",
     "featured_collection"
   ]

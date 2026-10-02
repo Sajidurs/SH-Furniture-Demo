@@ -1,0 +1,299 @@
+{% comment %}
+  SH Furniture: "Shop by room / category" grid.
+
+  - Each card is a block. Pick a collection and the card uses its image, title, URL
+    and product count. Image, title and link can be overridden per card.
+  - Mobile: 2-column grid or a horizontal swipe row (CSS scroll-snap, no JS).
+  - Desktop: 3–6 columns.
+  - No JavaScript. Images lazy-load with sizes that match the column count.
+{% endcomment %}
+
+{{ 'sh-room-grid.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+{%- liquid
+  assign columns = section.settings.columns_desktop
+  # Image "sizes" hint: one column's share of the page width (max page width 1400px)
+  capture image_sizes
+    echo '(min-width: 1400px) calc(1400px / ' | append: columns | append: '), (min-width: 990px) calc(100vw / ' | append: columns | append: '), (min-width: 750px) 33vw, 50vw'
+  endcapture
+-%}
+
+<div class="sh-rooms color-{{ section.settings.color_scheme }} gradient">
+  <div class="page-width section-{{ section.id }}-padding">
+    {%- if section.settings.heading != blank or section.settings.text != blank or section.settings.view_all_label != blank -%}
+      <div class="sh-rooms__header sh-rooms__header--{{ section.settings.header_alignment }}">
+        <div class="sh-rooms__intro">
+          {%- if section.settings.heading != blank -%}
+            <h2 class="sh-rooms__heading {{ section.settings.heading_size }}">{{ section.settings.heading }}</h2>
+          {%- endif -%}
+          {%- if section.settings.text != blank -%}
+            <div class="sh-rooms__text rte">{{ section.settings.text }}</div>
+          {%- endif -%}
+        </div>
+        {%- if section.settings.view_all_label != blank and section.settings.view_all_link != blank -%}
+          <a href="{{ section.settings.view_all_link }}" class="sh-rooms__view-all link underlined-link">
+            {{- section.settings.view_all_label | escape -}}
+          </a>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <ul
+      class="sh-rooms__grid sh-rooms__grid--desktop-{{ columns }} sh-rooms__grid--mobile-{{ section.settings.mobile_layout }}"
+      role="list"
+    >
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign room = block.settings
+          assign collection_item = room.collection
+
+          # Each value: the block's own setting first, then the collection's
+          assign room_title = room.title | default: collection_item.title
+          assign room_link = room.link | default: collection_item.url
+          assign room_image = room.image | default: collection_item.featured_image
+
+          # Cycle through Shopify's 6 collection placeholders when there is no image
+          assign placeholder_index = forloop.index0 | modulo: 6 | plus: 1
+          assign placeholder_name = 'collection-' | append: placeholder_index
+        -%}
+        <li class="sh-rooms__item" {{ block.shopify_attributes }}>
+          <{% if room_link != blank %}a href="{{ room_link }}"{% else %}div{% endif %}
+            class="sh-room-card sh-room-card--{{ section.settings.card_style }}"
+          >
+            <div class="sh-room-card__media sh-room-card__media--{{ section.settings.image_ratio }}">
+              {%- if room_image != blank -%}
+                {{
+                  room_image
+                  | image_url: width: 1200
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '300, 450, 600, 800, 1000, 1200',
+                    sizes: image_sizes,
+                    alt: room_title
+                }}
+              {%- else -%}
+                {{ placeholder_name | placeholder_svg_tag: 'placeholder-svg' }}
+              {%- endif -%}
+            </div>
+
+            <div class="sh-room-card__content">
+              {%- if room_title != blank -%}
+                <h3 class="sh-room-card__title h4">{{ room_title | escape }}</h3>
+              {%- endif -%}
+              {%- if section.settings.show_count and collection_item != blank -%}
+                <p class="sh-room-card__count">
+                  {{- 'products.facets.product_count_simple' | t: count: collection_item.products_count -}}
+                </p>
+              {%- endif -%}
+            </div>
+          </{% if room_link != blank %}a{% else %}div{% endif %}>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "SH Shop by room",
+  "tag": "section",
+  "class": "section sh-rooms-section",
+  "max_blocks": 12,
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop by room"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "Heading size",
+      "options": [
+        { "value": "h2", "label": "Small" },
+        { "value": "h1", "label": "Medium" },
+        { "value": "h0", "label": "Large" }
+      ],
+      "default": "h1"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text",
+      "default": "<p>Find the right pieces for every space in your home.</p>"
+    },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Heading alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "text",
+      "id": "view_all_label",
+      "label": "\"View all\" label",
+      "default": "View all"
+    },
+    {
+      "type": "url",
+      "id": "view_all_link",
+      "label": "\"View all\" link",
+      "info": "The link is hidden until you set this."
+    },
+    {
+      "type": "header",
+      "content": "Cards"
+    },
+    {
+      "type": "select",
+      "id": "card_style",
+      "label": "Card style",
+      "options": [
+        { "value": "overlay", "label": "Text on image" },
+        { "value": "below", "label": "Text below image" }
+      ],
+      "default": "overlay"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image shape",
+      "options": [
+        { "value": "portrait", "label": "Portrait (4:5)" },
+        { "value": "square", "label": "Square" },
+        { "value": "landscape", "label": "Landscape (4:3)" }
+      ],
+      "default": "portrait"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_count",
+      "label": "Show product count",
+      "info": "Only for cards with a collection.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "min": 3,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "Mobile layout",
+      "options": [
+        { "value": "grid", "label": "2-column grid" },
+        { "value": "swipe", "label": "Swipe row" }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.all.padding.padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.all.padding.padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "blocks": [
+    {
+      "type": "room",
+      "name": "Room",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection",
+          "info": "Fills in the image, title, link and product count."
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image (optional)",
+          "info": "Replaces the collection image."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title (optional)",
+          "info": "Replaces the collection title."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link (optional)",
+          "info": "Replaces the collection link."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "SH Shop by room",
+      "blocks": [
+        { "type": "room", "settings": { "title": "Living Room" } },
+        { "type": "room", "settings": { "title": "Bedroom" } },
+        { "type": "room", "settings": { "title": "Dining" } },
+        { "type": "room", "settings": { "title": "Home Office" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

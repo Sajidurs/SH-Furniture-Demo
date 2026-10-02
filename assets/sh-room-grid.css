@@ -1,0 +1,177 @@
+/*
+  SH Furniture – "Shop by room" grid (sections/sh-room-grid.liquid)
+  Mobile first: 2-column grid or swipe row → 3 columns (tablet) → 3–6 columns (desktop).
+  No JavaScript.
+*/
+
+/* ---------- Header row ---------- */
+.sh-rooms__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.2rem 2.4rem;
+  margin-bottom: 2.4rem;
+}
+
+.sh-rooms__header--center {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.sh-rooms__heading {
+  margin: 0;
+}
+
+.sh-rooms__text {
+  margin-top: 0.8rem;
+  color: rgba(var(--color-foreground), 0.75);
+}
+
+.sh-rooms__text p {
+  margin: 0;
+}
+
+.sh-rooms__view-all {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ---------- Grid (mobile) ---------- */
+.sh-rooms__grid {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sh-rooms__grid--mobile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2rem;
+}
+
+/* Swipe row: cards bleed to the screen edge so the next card peeks in */
+@media screen and (max-width: 749px) {
+  .sh-rooms__grid--mobile-swipe {
+    display: flex;
+    gap: 1.2rem;
+    margin: 0 -1.5rem;
+    padding: 0 1.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0 1.5rem;
+    scrollbar-width: none;
+  }
+
+  .sh-rooms__grid--mobile-swipe::-webkit-scrollbar {
+    display: none;
+  }
+
+  .sh-rooms__grid--mobile-swipe .sh-rooms__item {
+    flex: 0 0 70%;
+    scroll-snap-align: start;
+  }
+}
+
+/* ---------- Grid (tablet + desktop) ---------- */
+@media screen and (min-width: 750px) {
+  .sh-rooms__header {
+    margin-bottom: 3.6rem;
+  }
+
+  .sh-rooms__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem;
+  }
+}
+
+@media screen and (min-width: 990px) {
+  .sh-rooms__grid--desktop-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .sh-rooms__grid--desktop-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .sh-rooms__grid--desktop-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+
+/* ---------- Card ---------- */
+.sh-room-card {
+  display: block;
+  position: relative;
+  height: 100%;
+  color: rgb(var(--color-foreground));
+  text-decoration: none;
+}
+
+.sh-room-card__media {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--media-radius);
+  background-color: rgba(var(--color-foreground), 0.05);
+}
+
+.sh-room-card__media--portrait { aspect-ratio: 4 / 5; }
+.sh-room-card__media--square { aspect-ratio: 1 / 1; }
+.sh-room-card__media--landscape { aspect-ratio: 4 / 3; }
+
+.sh-room-card__media img,
+.sh-room-card__media .placeholder-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sh-room-card__media .placeholder-svg {
+  fill: rgba(var(--color-foreground), 0.3);
+}
+
+.sh-room-card__title {
+  margin: 0;
+  color: inherit;
+}
+
+.sh-room-card__count {
+  margin: 0.4rem 0 0;
+  font-size: 1.3rem;
+  opacity: 0.8;
+}
+
+/* Style: text on image, over a soft dark fade for readability */
+.sh-room-card--overlay .sh-room-card__content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 4rem 1.6rem 1.6rem;
+  border-radius: 0 0 var(--media-radius) var(--media-radius);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0));
+  color: #fff;
+}
+
+/* Style: text below image */
+.sh-room-card--below .sh-room-card__content {
+  padding-top: 1.2rem;
+}
+
+a.sh-room-card--below:hover .sh-room-card__title {
+  text-decoration: underline;
+  text-underline-offset: 0.3rem;
+}
+
+@media screen and (min-width: 750px) {
+  .sh-room-card--overlay .sh-room-card__content {
+    padding: 6rem 2rem 2rem;
+  }
+}
+
+/* Gentle zoom on hover, skipped for users who prefer less motion */
+@media (prefers-reduced-motion: no-preference) {
+  .sh-room-card__media img {
+    transition: transform 0.5s ease;
+  }
+
+  a.sh-room-card:hover .sh-room-card__media img {
+    transform: scale(1.04);
+  }
+}

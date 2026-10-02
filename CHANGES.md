@@ -58,11 +58,23 @@
 | 2026-10-02 | Header: extend Dawn's header (do not rewrite it). Desktop has logo + search bar + icons on row 1 and mega menu + help link on row 2. Mobile keeps Dawn's drawer, logo and icons. | Furniture shoppers search a lot, so an always-visible bar helps. Reusing Dawn keeps the drawer, sticky header, accessibility and predictive search working. |
 | 2026-10-02 | Hero slider is our own section (`sh-hero-slider`), not Dawn's slideshow | We need a separate mobile image (portrait crop), 2 buttons and an eyebrow line. Sliding uses CSS scroll-snap so swipe works without JS; the small JS only adds arrows, dots and autoplay. |
 | 2026-10-02 | Slider accessibility: pause button when autoplay is on, no autoplay for reduced-motion visitors, off-screen slides `inert`, 44px controls | Accessibility rules (WCAG 2.2.2) require a pause control for moving content. |
+| 2026-10-02 | Shop by room = own section (`sh-room-grid`). Cards are blocks with a collection picker, and image/title/link can be overridden per card. No JS. | Picking a collection fills in the card automatically, and overrides allow room photos that differ from the collection image. Dawn's `collection-list` has no overlay style, swipe row or per-card overrides. |
 | 2026-10-02 | Mega menu promo cards are header blocks matched by menu item title | Fully editable in the theme editor with no code. Shopify menus cannot hold images, so blocks fill that gap. |
 
 ---
 
 ## 3. Change Log (newest first)
+
+### 2026-10-02 – Shop by room grid
+- New section **SH Shop by room** (up to 12 cards).
+  - Header: heading, size, text, alignment, "View all" label and link.
+  - Cards: style (text on image / text below), image shape (portrait 4:5, square, landscape 4:3), product count on/off.
+  - Layout: 3–6 desktop columns; mobile 2-column grid or swipe row (scroll-snap); color scheme; top/bottom padding.
+- Room block: collection, plus optional image, title and link overrides. If there is no image, it uses Shopify's collection placeholders.
+- Images lazy-load, and the `sizes` hint follows the column count.
+- Homepage: added under the slider with 6 sample rooms (Living Room, Bedroom, Dining, Home Office, Outdoor, Storage). 3 columns, square, text on image. No collections are linked yet (the store has only `frontpage`).
+- Checked in preview: 6 cards render, the "View all" link goes to `/collections/all`, no Liquid errors. Theme check: 0 errors (same 9 Dawn warnings).
+- **Files changed:** `sections/sh-room-grid.liquid` (new), `assets/sh-room-grid.css` (new), `templates/index.json`, `CHANGES.md`
 
 ### 2026-10-02 – Homepage hero slider
 - New section **SH Hero slider** (up to 6 slides). Each slide has: desktop image, optional mobile image (`<picture>` under 750px), overlay %, eyebrow, heading (h2, 3 sizes), text, 2 buttons (primary + outlined), desktop text position (5 options; mobile is always bottom), optional text box, color scheme.
@@ -110,22 +122,27 @@
 - Global style setup (fonts, colors, buttons, radius) applied.
 - Header: search bar, help link, mega menu with promo cards.
 - Homepage hero slider.
+- Homepage shop by room grid.
 
 **In progress**
-- Owner to do: build the main menu (nested links), upload a logo, and add real slide photos and links in the editor. Then check the header and slider on a phone and on desktop.
+- Owner to do:
+  - Build the main menu (nested links) and upload a logo.
+  - Add real slide photos and links.
+  - Create room collections (Living Room, Bedroom, ...) and link them to the room cards.
+  - Check the header, slider and room grid on a phone and on desktop.
 
 **Not started**
-- Shop by room grid, featured products, offer banner, footer, collection, product + EMI, cart drawer, other pages, app extension.
+- Featured products, offer banner, footer, collection, product + EMI, cart drawer, other pages, app extension.
 
 ---
 
 ## 5. Next Plan
 
-1. **Owner:** menu, logo and slider photos (see In progress), then a visual check on phone and desktop.
-2. **Shop by room / category grid** section (image cards with room name and link; 2 columns on mobile, 3–4 on desktop).
-3. **Featured products** (restyle Dawn's `featured-collection` cards for the brand).
-4. **Offer banner** section (image + text + countdown optional, Terracotta scheme 5).
-5. **Footer** (Deep Forest scheme 4: menus, newsletter, contact, social, payment icons).
+1. **Owner:** menu, logo, slider photos, room collections (see In progress), then a visual check on phone and desktop.
+2. **Featured products:** restyle Dawn's product cards (`snippets/card-product.liquid` via `sh-` CSS) and the `featured-collection` section for the brand (heading row with "View all", sale badge, hover second image).
+3. **Offer banner** section (image + text + optional countdown, Terracotta scheme 5).
+4. **Footer** (Deep Forest scheme 4: menus, newsletter, contact, social, payment icons).
+5. **Collection page:** product grid, sorting, Search & Discovery filters.
 
 ---
 
