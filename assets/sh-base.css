@@ -1,0 +1,30 @@
+/*
+  SH Furniture – brand base styles
+  Small overrides on top of Dawn's base.css.
+  Colors, fonts and corner radius come from theme settings (config/settings_data.json),
+  so keep this file for things Dawn has no setting for.
+  The CSS variables used here are set in layout/theme.liquid from "SH Furniture brand" settings.
+*/
+
+/* Buttons: uppercase label with light letter spacing (toggle in theme editor) */
+.button,
+.shopify-payment-button__button--unbranded {
+  text-transform: var(--sh-button-text-transform, none);
+  letter-spacing: var(--sh-button-letter-spacing, 0.06rem);
+  font-weight: 500;
+}
+
+/* Smooth hover for buttons and links */
+.button,
+.link {
+  transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Headings: slightly tighter tracking suits the geometric heading font */
+h1,
+h2,
+.h0,
+.h1,
+.h2 {
+  letter-spacing: -0.01em;
+}

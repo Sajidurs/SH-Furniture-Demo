@@ -1466,5 +1466,34 @@
         "label": "t:settings_schema.customer_accounts.settings.customer_account_menu.label"
       }
     ]
+  },
+  {
+    "name": "SH Furniture brand",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Extra brand styles that Dawn has no setting for. Used by assets/sh-base.css."
+      },
+      {
+        "type": "header",
+        "content": "Buttons"
+      },
+      {
+        "type": "checkbox",
+        "id": "sh_button_uppercase",
+        "label": "Uppercase button labels",
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "sh_button_letter_spacing",
+        "label": "Button letter spacing",
+        "info": "In hundredths of an em. 8 = 0.08em.",
+        "min": 0,
+        "max": 20,
+        "step": 1,
+        "default": 8
+      }
+    ]
   }
 ]

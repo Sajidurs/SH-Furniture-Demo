@@ -279,6 +279,15 @@
     {% endstyle %}
 
     {{ 'base.css' | asset_url | stylesheet_tag }}
+
+    {%- comment -%} SH Furniture: brand overrides, loaded after base.css so they win. {%- endcomment -%}
+    {%- style -%}
+      :root {
+        --sh-button-text-transform: {% if settings.sh_button_uppercase %}uppercase{% else %}none{% endif %};
+        --sh-button-letter-spacing: {{ settings.sh_button_letter_spacing | divided_by: 100.0 }}em;
+      }
+    {%- endstyle -%}
+    {{ 'sh-base.css' | asset_url | stylesheet_tag }}
     <link rel="stylesheet" href="{{ 'component-cart-items.css' | asset_url }}" media="print" onload="this.media='all'">
 
     {%- if settings.cart_type == 'drawer' -%}

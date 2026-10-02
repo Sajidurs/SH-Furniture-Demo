@@ -13,6 +13,7 @@
 | Store | `sh-furniture-guduvwts.myshopify.com` (development store) |
 | Base theme | Dawn 16.0.0 (cloned from github.com/Shopify/dawn) |
 | Theme folder | `C:\Users\bappe\Documents\SH Furniture\sh-furniture-theme` |
+| Git repo | https://github.com/Sajidurs/SH-Furniture-Demo (`origin`, branch `main`) |
 | Local preview | `shopify theme dev --store sh-furniture-guduvwts.myshopify.com` → http://127.0.0.1:9292 |
 | Shopify CLI | 4.8.3 |
 | Design inspiration | https://bongofurniture.com/ (layout and feel only) |
@@ -45,16 +46,35 @@
 | Date | Decision | Why |
 |---|---|---|
 | 2026-10-02 | Build on Dawn 16.0.0 instead of starting from scratch | Dawn is fast and accessible, and it already has a cart drawer, predictive search, a mega menu and facet filters, so we can restyle and extend it. |
-| 2026-10-02 | Global style setup (fonts, colors, buttons) | **PROPOSED, waiting for approval.** See the proposal in the session chat or in section 6. |
+| 2026-10-02 | Git: `origin` = Sajidurs/SH-Furniture-Demo, `upstream` = Shopify/dawn | Our own repo, while keeping the option to pull Dawn updates later. |
+| 2026-10-02 | Fonts: **Jost** (headings, 500) + **DM Sans** (body, 400) | Modern geometric headings that match furniture design; body is very readable on mobile. Both are in the Shopify font library, so no extra font files. |
+| 2026-10-02 | "Warm Modern" palette: Ivory `#FAF7F2`, Charcoal `#2B2B2B`, Walnut `#8B5E3C`, Sage `#7A8B74`, Sand `#EFE8DD`, Terracotta `#B04E34`, Deep Forest `#1F2A24` | Natural wood and fabric tones. Approved by the owner "for now" and may change later. Terracotta was darkened from `#C2593D` to `#B04E34` so white text passes accessibility contrast (4.5:1). |
+| 2026-10-02 | Color schemes: 1 Ivory (main), 2 Sand (cards/alt), 3 Walnut (highlight), 4 Deep Forest (footer/dark), 5 Terracotta (offers/sale) | Any section can switch schemes in the theme editor. Sale badge uses scheme 5 and sold-out uses scheme 4. |
+| 2026-10-02 | Shapes: buttons/inputs 6px, cards/media/text boxes/popups 8px, badges 4px, variant pills stay round | A soft, modern look that is not too rounded. |
+| 2026-10-02 | Buttons: uppercase labels, 0.08em letter spacing, 500 weight | Done in `assets/sh-base.css` and controlled by the new "SH Furniture brand" settings group. |
+| 2026-10-02 | Page width 1400px | Bigger room and product photos on desktop. |
+| 2026-10-02 | Brand-only CSS goes in `assets/sh-base.css`, loaded after `base.css` | Keeps our changes separate from Dawn files, so Dawn updates are easier to merge. |
 
 ---
 
 ## 3. Change Log (newest first)
 
+### 2026-10-02 – Global style setup applied
+- Set brand fonts, the 5 color schemes, corner radius, page width (1400), and badge schemes.
+- Added the "SH Furniture brand" settings group (uppercase buttons, letter spacing).
+- Created `assets/sh-base.css` for brand overrides and loaded it in `theme.liquid` after `base.css`.
+- `shopify theme check`: 0 errors. The 9 warnings all come from stock Dawn (same count before our changes).
+- **Files changed:** `config/settings_data.json`, `config/settings_schema.json`, `layout/theme.liquid`, `assets/sh-base.css` (new), `CHANGES.md`
+
+### 2026-10-02 – Own GitHub repo
+- Renamed the Shopify Dawn remote from `origin` to `upstream`.
+- Added `origin` = https://github.com/Sajidurs/SH-Furniture-Demo.git and pushed `main` (with Dawn history).
+- **Files changed:** none (git config only)
+
 ### 2026-10-02 – Session 1: Project setup
 - Looked through the Dawn theme folder.
 - Created `CHANGES.md` (this file) and `CLAUDE.md`.
-- Proposed the global style setup (no theme files changed yet).
+- Proposed the global style setup.
 - **Files changed:** `CHANGES.md` (new), `CLAUDE.md` (new)
 
 ---
@@ -64,35 +84,34 @@
 **Done**
 - Dawn 16.0.0 cloned locally.
 - Project memory files created.
+- Own GitHub repo connected (`origin`).
+- Global style setup (fonts, colors, buttons, radius) applied.
 
 **In progress**
-- Global style setup: proposal sent, waiting for owner approval.
+- Nothing. The next task is the header.
 
 **Not started**
-- Header and mega menu, homepage sections, collection, product + EMI, cart drawer styling, other pages, app extension.
+- Header and mega menu, homepage sections, collection, product + EMI, cart drawer, other pages, app extension.
 
 ---
 
 ## 5. Next Plan
 
-1. **Apply the approved global styles.** Update `config/settings_data.json` (fonts, color schemes, buttons, cards, radius) and add a small `assets/sh-base.css` for brand tokens.
-2. **Header.** Logo, search, cart icon and mega menu, styled for the brand (extend Dawn's `sections/header.liquid`).
+1. **Check the styles in preview** (`shopify theme dev`): fonts load, colors look right, buttons are uppercase.
+2. **Header.** Logo, search, cart icon and mega menu, styled for the brand (extend Dawn's `sections/header.liquid`). Also create a test main menu in Shopify admin with nested links.
 3. **Homepage hero slider** section with editable slides.
 4. **Shop by room / category grid** section.
-5. **Featured products + offer banner** sections, then the footer.
+5. **Featured products + offer banner** sections, then the footer (Deep Forest scheme 4).
 
 ---
 
 ## 6. Known Issues / Notes
 
-- **Git remote warning:** `origin` still points to `https://github.com/Shopify/dawn.git`. Before pushing, we should create our own GitHub repo and change the remote. Pushing to Shopify's repo would fail anyway.
-- Dawn currently uses its default font (Assistant), black and white color schemes, and square buttons (`buttons_radius: 0`).
+- Git: push to `origin` (our repo). To get Dawn updates later, run `git fetch upstream` and then merge carefully.
+- `config/settings_data.json` uses `"current": "Dawn"` (a preset). Brand values live in `presets.Dawn`. Once the theme is customized in the editor, Shopify may rewrite this file. Always pull the latest from the store (`shopify theme pull --only config/settings_data.json`) before editing it by hand.
+- Sage `#7A8B74` is not in any color scheme yet. It is kept for accents (icons, badges) in later sections.
+- `cart_type` is still `notification`. It will switch to `drawer` in the cart drawer task.
 - `.theme-check.yml` turns off the `MatchingTranslations` and `TemplateLength` checks (Dawn default).
+- Theme check has 9 warnings that come from stock Dawn. Ignore them unless we edit those files.
 - Dawn sections we will reuse or extend: `header`, `slideshow`, `collection-list`, `featured-collection`, `image-banner`, `footer`, `cart-drawer`, `main-collection-product-grid` (facets), `main-product`, `main-search`, `main-404`, `main-blog`, `contact-form`.
 - The root-level `.md` files are not uploaded to Shopify (only the theme folders are).
-
-### Pending proposal: global style setup (2026-10-02)
-- **Fonts:** headings in Jost (500/600); body in DM Sans (400/500). Both are in Shopify's font library.
-- **Colors:** Ivory `#FAF7F2` (background), Charcoal `#2B2B2B` (text), Walnut `#8B5E3C` (primary/buttons), Sage `#7A8B74` (accent), Sand `#EFE8DD` (alt background), Terracotta `#C2593D` (sale/offers), Deep Forest `#1F2A24` (dark footer).
-- **Buttons:** 6px radius, solid walnut primary, outlined secondary, 1px border, no shadow, uppercase label with small letter spacing.
-- **Cards and inputs:** 8px radius, image-first product cards on a sand background.
