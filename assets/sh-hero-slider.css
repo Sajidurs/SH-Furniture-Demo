@@ -1,0 +1,317 @@
+/*
+  SH Furniture – hero slider (sections/sh-hero-slider.liquid)
+  Mobile first. Sliding = native CSS scroll-snap; JS only adds controls/autoplay.
+*/
+
+/* ---------- Heights (mobile first, then desktop) ---------- */
+.sh-hero {
+  --sh-hero-height: 64rem;
+  display: block;
+  position: relative;
+}
+
+.sh-hero--mobile-small { --sh-hero-height: 40rem; }
+.sh-hero--mobile-medium { --sh-hero-height: 52rem; }
+.sh-hero--mobile-large { --sh-hero-height: 64rem; }
+
+@media screen and (min-width: 750px) {
+  .sh-hero--desktop-small { --sh-hero-height: 48rem; }
+  .sh-hero--desktop-medium { --sh-hero-height: 60rem; }
+  .sh-hero--desktop-large { --sh-hero-height: 72rem; }
+  .sh-hero--desktop-screen { --sh-hero-height: max(56rem, calc(100svh - var(--header-height, 0px))); }
+}
+
+/* Boxed (not full width): rounded corners like the rest of the theme */
+.sh-hero--boxed {
+  border-radius: var(--media-radius);
+  overflow: hidden;
+}
+
+/* ---------- Track + slides ---------- */
+.sh-hero__track {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none; /* Firefox */
+}
+
+.sh-hero__track::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.sh-hero__slide {
+  position: relative;
+  display: flex;
+  flex: 0 0 100%;
+  min-height: var(--sh-hero-height);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* ---------- Background image ---------- */
+.sh-hero__media {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.sh-hero__media picture,
+.sh-hero__media img,
+.sh-hero__media .placeholder-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sh-hero__media .placeholder-svg {
+  background-color: rgba(var(--color-foreground), 0.08);
+  fill: rgba(var(--color-foreground), 0.3);
+}
+
+.sh-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background-color: #000;
+  pointer-events: none;
+}
+
+/* ---------- Text content ---------- */
+/* Mobile: text sits at the bottom, with room for the dots below it */
+.sh-hero__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  padding-top: 4rem;
+  padding-bottom: 8rem;
+}
+
+.sh-hero__content {
+  max-width: 60rem;
+  color: rgb(var(--color-foreground));
+}
+
+.sh-hero__content--box {
+  padding: 2.4rem;
+  border-radius: var(--text-boxes-radius);
+}
+
+.sh-hero__eyebrow {
+  margin: 0 0 1rem;
+  font-size: 1.3rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.sh-hero__heading {
+  margin: 0;
+  color: inherit;
+}
+
+.sh-hero__text {
+  margin-top: 1.4rem;
+  font-size: 1.6rem;
+}
+
+.sh-hero__text p {
+  margin: 0;
+}
+
+.sh-hero__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  margin-top: 2.4rem;
+}
+
+/* Desktop: use the chosen position */
+@media screen and (min-width: 750px) {
+  .sh-hero__inner {
+    padding-top: 6rem;
+    padding-bottom: 9rem;
+  }
+
+  .sh-hero__slide--middle-left .sh-hero__inner,
+  .sh-hero__slide--middle-center .sh-hero__inner,
+  .sh-hero__slide--middle-right .sh-hero__inner {
+    align-items: center;
+  }
+
+  .sh-hero__slide--middle-center .sh-hero__inner,
+  .sh-hero__slide--bottom-center .sh-hero__inner {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .sh-hero__slide--middle-right .sh-hero__inner {
+    justify-content: flex-end;
+  }
+
+  .sh-hero__slide--middle-center .sh-hero__buttons,
+  .sh-hero__slide--bottom-center .sh-hero__buttons {
+    justify-content: center;
+  }
+
+  .sh-hero__content--box {
+    padding: 4rem;
+  }
+
+  .sh-hero__text {
+    font-size: 1.8rem;
+  }
+}
+
+/* ---------- Controls (shown only after JS is ready) ---------- */
+.sh-hero__controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1.6rem;
+  z-index: 2;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  pointer-events: none; /* let swipes pass through the empty space */
+}
+
+.sh-hero.is-ready .sh-hero__controls {
+  display: flex;
+}
+
+.sh-hero__controls button {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.sh-hero__arrow,
+.sh-hero__play {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.4rem; /* 44px tap target */
+  height: 4.4rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background-color: rgba(250, 247, 242, 0.9);
+  color: #2b2b2b;
+  transition: background-color 0.2s ease;
+}
+
+.sh-hero__arrow:hover,
+.sh-hero__play:hover {
+  background-color: #fff;
+}
+
+.sh-hero__arrow .svg-wrapper {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.sh-hero__arrow--prev .svg-wrapper {
+  transform: rotate(90deg);
+}
+
+.sh-hero__arrow--next .svg-wrapper {
+  transform: rotate(-90deg);
+}
+
+.sh-hero__dots {
+  display: flex;
+  gap: 0.2rem;
+}
+
+/* Dot: small visible pill inside a 24px tap area */
+.sh-hero__dot {
+  position: relative;
+  width: 2.4rem;
+  height: 2.4rem;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.sh-hero__dot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 1rem;
+  background-color: rgba(255, 255, 255, 0.6);
+  transform: translate(-50%, -50%);
+  transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+.sh-hero__dot[aria-current='true']::after {
+  width: 2rem;
+  background-color: #fff;
+}
+
+/* Play / pause icons drawn with CSS (no extra SVG files) */
+.sh-hero__icon-pause {
+  width: 1rem;
+  height: 1.2rem;
+  border-left: 0.3rem solid currentColor;
+  border-right: 0.3rem solid currentColor;
+}
+
+.sh-hero__icon-play {
+  display: none;
+  width: 0;
+  height: 0;
+  margin-left: 0.3rem;
+  border-top: 0.65rem solid transparent;
+  border-bottom: 0.65rem solid transparent;
+  border-left: 1.1rem solid currentColor;
+}
+
+.sh-hero.is-paused .sh-hero__icon-pause {
+  display: none;
+}
+
+.sh-hero.is-paused .sh-hero__icon-play {
+  display: block;
+}
+
+/*
+  Desktop: the controls layer covers the whole slider, dots stay at the bottom,
+  and arrows move to the sides, vertically centered.
+*/
+@media screen and (min-width: 990px) {
+  .sh-hero__controls {
+    top: 0;
+    bottom: 0;
+    align-items: flex-end;
+    padding-bottom: 2.4rem;
+  }
+
+  .sh-hero__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .sh-hero__arrow--prev {
+    left: 2.4rem;
+  }
+
+  .sh-hero__arrow--next {
+    right: 2.4rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-hero__track {
+    scroll-behavior: auto;
+  }
+}

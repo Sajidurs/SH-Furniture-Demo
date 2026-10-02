@@ -1,0 +1,451 @@
+{% comment %}
+  SH Furniture: homepage hero slider.
+
+  - Each slide is a block: desktop image, optional mobile image, eyebrow, heading, text, 2 buttons.
+  - Sliding uses CSS scroll-snap (swipe works even before JS loads).
+  - assets/sh-hero-slider.js adds arrows, dots, autoplay with pause, and theme-editor support.
+  - Speed: the first slide image loads eagerly with high priority (it is the LCP image);
+    all other slides lazy-load.
+{% endcomment %}
+
+{{ 'sh-hero-slider.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'sh-hero-slider.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign slide_count = section.blocks.size
+  assign is_slider = false
+  if slide_count > 1
+    assign is_slider = true
+  endif
+-%}
+
+{%- style -%}
+  .section-{{ section.id }}-margin {
+    margin-bottom: {{ section.settings.margin_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-margin {
+      margin-bottom: {{ section.settings.margin_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="section-{{ section.id }}-margin{% if section.settings.full_width == false %} page-width{% endif %}">
+  <sh-hero-slider
+    class="sh-hero sh-hero--mobile-{{ section.settings.mobile_height }} sh-hero--desktop-{{ section.settings.desktop_height }}{% if section.settings.full_width == false %} sh-hero--boxed{% endif %}"
+    role="region"
+    aria-roledescription="{{ 'sections.slideshow.carousel' | t }}"
+    aria-label="{{ section.settings.accessibility_label | escape }}"
+    data-autoplay="{% if is_slider and section.settings.autoplay %}true{% else %}false{% endif %}"
+    data-speed="{{ section.settings.autoplay_speed }}"
+  >
+    <ul class="sh-hero__track" role="list" id="ShHeroTrack-{{ section.id }}">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign slide = block.settings
+          # Only the first slide is the LCP image: load it eagerly, lazy-load the rest
+          if forloop.first
+            assign loading = 'eager'
+            assign priority = 'high'
+          else
+            assign loading = 'lazy'
+            assign priority = 'auto'
+          endif
+          # Alt text: image alt from Files, else the heading without formatting
+          assign image_alt = slide.image.alt | default: slide.heading | strip_html | escape
+        -%}
+        <li
+          class="sh-hero__slide sh-hero__slide--{{ slide.content_position }}"
+          id="ShHeroSlide-{{ section.id }}-{{ forloop.index }}"
+          role="group"
+          aria-roledescription="{{ 'sections.slideshow.slide' | t }}"
+          aria-label="{{ forloop.index }} / {{ forloop.length }}"
+          {{ block.shopify_attributes }}
+        >
+          {%- comment -%} Background image: <picture> swaps to the mobile image under 750px {%- endcomment -%}
+          <div class="sh-hero__media">
+            {%- if slide.image != blank -%}
+              <picture>
+                {%- if slide.mobile_image != blank -%}
+                  <source
+                    media="(max-width: 749px)"
+                    srcset="
+                      {{ slide.mobile_image | image_url: width: 550 }} 550w,
+                      {{ slide.mobile_image | image_url: width: 750 }} 750w,
+                      {{ slide.mobile_image | image_url: width: 1100 }} 1100w
+                    "
+                    sizes="100vw"
+                    width="{{ slide.mobile_image.width }}"
+                    height="{{ slide.mobile_image.height }}"
+                  >
+                {%- endif -%}
+                {{
+                  slide.image
+                  | image_url: width: 3000
+                  | image_tag:
+                    widths: '750, 1100, 1500, 1800, 2200, 3000',
+                    sizes: '100vw',
+                    loading: loading,
+                    fetchpriority: priority,
+                    alt: image_alt
+                }}
+              </picture>
+            {%- else -%}
+              {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' }}
+            {%- endif -%}
+            <span class="sh-hero__overlay" style="opacity: {{ slide.overlay_opacity | divided_by: 100.0 }};"></span>
+          </div>
+
+          <div class="sh-hero__inner page-width">
+            <div class="sh-hero__content color-{{ slide.color_scheme }}{% if slide.show_text_box %} sh-hero__content--box gradient{% endif %}">
+              {%- if slide.eyebrow != blank -%}
+                <p class="sh-hero__eyebrow">{{ slide.eyebrow | escape }}</p>
+              {%- endif -%}
+              {%- if slide.heading != blank -%}
+                <h2 class="sh-hero__heading {{ slide.heading_size }}">{{ slide.heading }}</h2>
+              {%- endif -%}
+              {%- if slide.text != blank -%}
+                <div class="sh-hero__text rte">{{ slide.text }}</div>
+              {%- endif -%}
+              {%- if slide.button_label_1 != blank or slide.button_label_2 != blank -%}
+                <div class="sh-hero__buttons">
+                  {%- if slide.button_label_1 != blank -%}
+                    <a
+                      class="button button--primary"
+                      {% if slide.button_link_1 != blank %}
+                        href="{{ slide.button_link_1 }}"
+                      {% else %}
+                        role="link" aria-disabled="true"
+                      {% endif %}
+                    >
+                      {{- slide.button_label_1 | escape -}}
+                    </a>
+                  {%- endif -%}
+                  {%- if slide.button_label_2 != blank -%}
+                    <a
+                      class="button button--secondary"
+                      {% if slide.button_link_2 != blank %}
+                        href="{{ slide.button_link_2 }}"
+                      {% else %}
+                        role="link" aria-disabled="true"
+                      {% endif %}
+                    >
+                      {{- slide.button_label_2 | escape -}}
+                    </a>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+        </li>
+      {%- endfor -%}
+    </ul>
+
+    {%- if is_slider -%}
+      {%- comment -%} Controls: hidden until JS is ready (class "is-ready"), so no dead buttons without JS {%- endcomment -%}
+      <div class="sh-hero__controls page-width">
+        {%- if section.settings.show_arrows -%}
+          <button
+            type="button"
+            class="sh-hero__arrow sh-hero__arrow--prev"
+            data-hero-prev
+            aria-controls="ShHeroTrack-{{ section.id }}"
+            aria-label="{{ 'sections.slideshow.previous_slideshow' | t }}"
+          >
+            <span class="svg-wrapper">{{- 'icon-caret.svg' | inline_asset_content -}}</span>
+          </button>
+        {%- endif -%}
+
+        {%- if section.settings.show_dots -%}
+          <div class="sh-hero__dots">
+            {%- for block in section.blocks -%}
+              <button
+                type="button"
+                class="sh-hero__dot"
+                data-hero-dot="{{ forloop.index0 }}"
+                aria-controls="ShHeroTrack-{{ section.id }}"
+                aria-label="{{ 'sections.slideshow.load_slide' | t }} {{ forloop.index }} / {{ forloop.length }}"
+                {% if forloop.first %}
+                  aria-current="true"
+                {% endif %}
+              ></button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.show_arrows -%}
+          <button
+            type="button"
+            class="sh-hero__arrow sh-hero__arrow--next"
+            data-hero-next
+            aria-controls="ShHeroTrack-{{ section.id }}"
+            aria-label="{{ 'sections.slideshow.next_slideshow' | t }}"
+          >
+            <span class="svg-wrapper">{{- 'icon-caret.svg' | inline_asset_content -}}</span>
+          </button>
+        {%- endif -%}
+
+        {%- if section.settings.autoplay -%}
+          {%- comment -%} Pause button: required for accessibility when slides move on their own {%- endcomment -%}
+          <button
+            type="button"
+            class="sh-hero__play"
+            data-hero-play
+            aria-controls="ShHeroTrack-{{ section.id }}"
+            aria-label="{{ 'sections.slideshow.pause_slideshow' | t }}"
+            data-label-pause="{{ 'sections.slideshow.pause_slideshow' | t }}"
+            data-label-play="{{ 'sections.slideshow.play_slideshow' | t }}"
+          >
+            <span class="sh-hero__icon-pause" aria-hidden="true"></span>
+            <span class="sh-hero__icon-play" aria-hidden="true"></span>
+          </button>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </sh-hero-slider>
+</div>
+
+{% schema %}
+{
+  "name": "SH Hero slider",
+  "tag": "section",
+  "class": "section sh-hero-section",
+  "max_blocks": 6,
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full width",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "desktop_height",
+      "label": "Desktop height",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" },
+        { "value": "screen", "label": "Fill screen" }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "select",
+      "id": "mobile_height",
+      "label": "Mobile height",
+      "options": [
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" }
+      ],
+      "default": "large"
+    },
+    {
+      "type": "header",
+      "content": "Slider"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Auto-rotate slides",
+      "info": "Turned off automatically for visitors who prefer reduced motion.",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Change slides every",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 6
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show arrows",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "Show dots",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "accessibility_label",
+      "label": "Slider description",
+      "info": "Read by screen readers.",
+      "default": "Featured collections"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "label": "Space below",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image",
+          "info": "Landscape, at least 2400 × 1200 px."
+        },
+        {
+          "type": "image_picker",
+          "id": "mobile_image",
+          "label": "Mobile image (optional)",
+          "info": "Portrait, about 1100 × 1400 px. Uses the main image if empty."
+        },
+        {
+          "type": "range",
+          "id": "overlay_opacity",
+          "label": "Image overlay",
+          "info": "Darkens the image so text is easier to read.",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "default": 25
+        },
+        {
+          "type": "header",
+          "content": "Text"
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Small text above heading",
+          "default": "New collection"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Furniture made for everyday living"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "label": "Heading size",
+          "options": [
+            { "value": "h2", "label": "Small" },
+            { "value": "h1", "label": "Medium" },
+            { "value": "h0", "label": "Large" }
+          ],
+          "default": "h0"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Comfortable sofas, solid wood tables and smart storage for every room.</p>"
+        },
+        {
+          "type": "header",
+          "content": "Buttons"
+        },
+        {
+          "type": "text",
+          "id": "button_label_1",
+          "label": "First button label",
+          "info": "Leave empty to hide.",
+          "default": "Shop now"
+        },
+        {
+          "type": "url",
+          "id": "button_link_1",
+          "label": "First button link"
+        },
+        {
+          "type": "text",
+          "id": "button_label_2",
+          "label": "Second button label",
+          "info": "Outlined style. Leave empty to hide.",
+          "default": "Explore rooms"
+        },
+        {
+          "type": "url",
+          "id": "button_link_2",
+          "label": "Second button link"
+        },
+        {
+          "type": "header",
+          "content": "Style"
+        },
+        {
+          "type": "select",
+          "id": "content_position",
+          "label": "Text position on desktop",
+          "info": "On mobile the text always sits at the bottom of the slide.",
+          "options": [
+            { "value": "middle-left", "label": "Middle left" },
+            { "value": "middle-center", "label": "Middle center" },
+            { "value": "middle-right", "label": "Middle right" },
+            { "value": "bottom-left", "label": "Bottom left" },
+            { "value": "bottom-center", "label": "Bottom center" }
+          ],
+          "default": "middle-left"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_text_box",
+          "label": "Show box behind text",
+          "info": "Uses the background color of the color scheme.",
+          "default": false
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme",
+          "label": "Text and button colors",
+          "info": "Pick a light-text scheme (e.g. Deep Forest) for dark photos.",
+          "default": "scheme-4"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "SH Hero slider",
+      "blocks": [
+        { "type": "slide" },
+        {
+          "type": "slide",
+          "settings": {
+            "eyebrow": "Bedroom",
+            "heading": "Rest easy in a room you love",
+            "text": "<p>Beds, wardrobes and side tables in warm natural finishes.</p>",
+            "button_label_2": "",
+            "content_position": "middle-center"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

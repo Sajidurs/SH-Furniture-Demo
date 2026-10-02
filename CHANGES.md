@@ -56,11 +56,21 @@
 | 2026-10-02 | Brand-only CSS goes in `assets/sh-base.css`, loaded after `base.css` | Keeps our changes separate from Dawn files, so Dawn updates are easier to merge. |
 | 2026-10-02 | Naming: our new files, classes and settings start with `sh-` / `sh_` | Easy to tell our code apart from Dawn's. |
 | 2026-10-02 | Header: extend Dawn's header (do not rewrite it). Desktop has logo + search bar + icons on row 1 and mega menu + help link on row 2. Mobile keeps Dawn's drawer, logo and icons. | Furniture shoppers search a lot, so an always-visible bar helps. Reusing Dawn keeps the drawer, sticky header, accessibility and predictive search working. |
+| 2026-10-02 | Hero slider is our own section (`sh-hero-slider`), not Dawn's slideshow | We need a separate mobile image (portrait crop), 2 buttons and an eyebrow line. Sliding uses CSS scroll-snap so swipe works without JS; the small JS only adds arrows, dots and autoplay. |
+| 2026-10-02 | Slider accessibility: pause button when autoplay is on, no autoplay for reduced-motion visitors, off-screen slides `inert`, 44px controls | Accessibility rules (WCAG 2.2.2) require a pause control for moving content. |
 | 2026-10-02 | Mega menu promo cards are header blocks matched by menu item title | Fully editable in the theme editor with no code. Shopify menus cannot hold images, so blocks fill that gap. |
 
 ---
 
 ## 3. Change Log (newest first)
+
+### 2026-10-02 – Homepage hero slider
+- New section **SH Hero slider** (up to 6 slides). Each slide has: desktop image, optional mobile image (`<picture>` under 750px), overlay %, eyebrow, heading (h2, 3 sizes), text, 2 buttons (primary + outlined), desktop text position (5 options; mobile is always bottom), optional text box, color scheme.
+- Section settings: full width / boxed, desktop height (S/M/L/fill screen), mobile height, autoplay on/off and speed, arrows, dots, screen-reader label, space below.
+- Speed: the first slide image is `eager` + `fetchpriority=high` (LCP). Other slides are lazy. The JS loads with `defer`.
+- Homepage (`templates/index.json`): slider added at the top with 3 sample slides. Dawn's `image_banner` is **disabled, not deleted** (it can be turned back on in the editor).
+- Checked in preview: 3 slides and 3 dots render, no Liquid errors, JS syntax OK. Theme check: 0 errors (same 9 Dawn warnings).
+- **Files changed:** `sections/sh-hero-slider.liquid` (new), `assets/sh-hero-slider.css` (new), `assets/sh-hero-slider.js` (new), `templates/index.json`, `CHANGES.md`
 
 ### 2026-10-02 – Header: search bar, help link, mega menu promos
 - Desktop search bar with live (predictive) results. It reuses Dawn's `<predictive-search>`, so no new JS. The search icon is hidden on desktop when the bar shows.
@@ -99,21 +109,22 @@
 - Own GitHub repo connected (`origin`).
 - Global style setup (fonts, colors, buttons, radius) applied.
 - Header: search bar, help link, mega menu with promo cards.
+- Homepage hero slider.
 
 **In progress**
-- Waiting for the owner to build the main menu in Shopify admin (nested links) and upload a logo, so the mega menu can be checked visually.
+- Owner to do: build the main menu (nested links), upload a logo, and add real slide photos and links in the editor. Then check the header and slider on a phone and on desktop.
 
 **Not started**
-- Homepage sections, collection, product + EMI, cart drawer, other pages, app extension.
+- Shop by room grid, featured products, offer banner, footer, collection, product + EMI, cart drawer, other pages, app extension.
 
 ---
 
 ## 5. Next Plan
 
-1. **Owner:** build the main menu in Admin → Content → Menus (e.g. Living Room > Sofas, Coffee Tables; Bedroom > Beds, Wardrobes; Dining; Office; Sale), upload a logo, and check the header on desktop and mobile.
-2. **Homepage hero slider** section with editable slides (image, mobile image, heading, text, buttons).
-3. **Shop by room / category grid** section.
-4. **Featured products + offer banner** sections.
+1. **Owner:** menu, logo and slider photos (see In progress), then a visual check on phone and desktop.
+2. **Shop by room / category grid** section (image cards with room name and link; 2 columns on mobile, 3–4 on desktop).
+3. **Featured products** (restyle Dawn's `featured-collection` cards for the brand).
+4. **Offer banner** section (image + text + countdown optional, Terracotta scheme 5).
 5. **Footer** (Deep Forest scheme 4: menus, newsletter, contact, social, payment icons).
 
 ---
@@ -126,6 +137,8 @@
 - The store's main menu is currently Home / Catalog / Contact with no sub-links, so mega menu dropdowns will not appear until nested links are added.
 - The desktop search bar only shows when the logo position is "Top left" and the menu type is not "Drawer" (see `sh_search_bar` in `header.liquid`).
 - Mega promo matching uses the menu link **title** (not case-sensitive). If a menu item is renamed, update the block's "Menu item" too.
+- Hero sample slides use placeholder text (no real offers). Slide 3 says "Seasonal offers on dining". Replace it with a real promotion before launch.
+- The hero slider has not been tested visually in a real browser yet (only HTML output and JS syntax were checked). Test swipe, arrows, dots and pause on a phone and on desktop.
 - The owner usually keeps `shopify theme dev` running on port 9292, so local saves sync to the preview automatically.
 - `cart_type` is still `notification`. It will switch to `drawer` in the cart drawer task.
 - `.theme-check.yml` turns off the `MatchingTranslations` and `TemplateLength` checks (Dawn default).

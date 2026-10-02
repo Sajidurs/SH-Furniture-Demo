@@ -1,5 +1,77 @@
 {
   "sections": {
+    "hero_slider": {
+      "type": "sh-hero-slider",
+      "blocks": {
+        "slide_1": {
+          "type": "slide",
+          "settings": {
+            "overlay_opacity": 25,
+            "eyebrow": "New collection",
+            "heading": "Furniture made for everyday living",
+            "heading_size": "h0",
+            "text": "<p>Comfortable sofas, solid wood tables and smart storage for every room.</p>",
+            "button_label_1": "Shop now",
+            "button_link_1": "shopify://collections/all",
+            "button_label_2": "Explore rooms",
+            "button_link_2": "",
+            "content_position": "middle-left",
+            "show_text_box": false,
+            "color_scheme": "scheme-4"
+          }
+        },
+        "slide_2": {
+          "type": "slide",
+          "settings": {
+            "overlay_opacity": 25,
+            "eyebrow": "Bedroom",
+            "heading": "Rest easy in a room you love",
+            "heading_size": "h0",
+            "text": "<p>Beds, wardrobes and side tables in warm natural finishes.</p>",
+            "button_label_1": "Shop now",
+            "button_link_1": "shopify://collections/all",
+            "button_label_2": "",
+            "button_link_2": "",
+            "content_position": "middle-center",
+            "show_text_box": false,
+            "color_scheme": "scheme-4"
+          }
+        },
+        "slide_3": {
+          "type": "slide",
+          "settings": {
+            "overlay_opacity": 25,
+            "eyebrow": "Offers",
+            "heading": "Seasonal offers on dining",
+            "heading_size": "h0",
+            "text": "<p>Gather around a table built to last.</p>",
+            "button_label_1": "Shop the sale",
+            "button_link_1": "shopify://collections/all",
+            "button_label_2": "",
+            "button_link_2": "",
+            "content_position": "bottom-left",
+            "show_text_box": true,
+            "color_scheme": "scheme-1"
+          }
+        }
+      },
+      "block_order": [
+        "slide_1",
+        "slide_2",
+        "slide_3"
+      ],
+      "settings": {
+        "full_width": true,
+        "desktop_height": "large",
+        "mobile_height": "large",
+        "autoplay": true,
+        "autoplay_speed": 6,
+        "show_arrows": true,
+        "show_dots": true,
+        "accessibility_label": "Featured collections",
+        "margin_bottom": 0
+      }
+    },
     "image_banner": {
       "type": "image-banner",
       "blocks": {
@@ -37,7 +109,8 @@
         "mobile_content_alignment": "center",
         "stack_images_on_mobile": false,
         "show_text_below": false
-      }
+      },
+      "disabled": true
     },
     "featured_collection": {
       "type": "featured-collection",
@@ -69,6 +142,7 @@
     }
   },
   "order": [
+    "hero_slider",
     "image_banner",
     "featured_collection"
   ]
